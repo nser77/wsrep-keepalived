@@ -1,6 +1,12 @@
 #!/bin/sh
 
-FPERM=644
+which stat chmod &>/dev/zero
+
+if [ $? -ne 0 ]
+then
+    exit 1
+fi
+
 FILE=/var/lib/mysql/vrrp-status
 
 while [ $# -gt 0 ]
@@ -11,7 +17,6 @@ do
          	shift
      	;;
    esac
-
    shift
 done
 
@@ -27,9 +32,9 @@ then
         exit 1
     fi
 
-    if [ "$(stat -L -c "%a" ${FILE})" -ne "${FPERM}" ]
+    if [ "$(stat -c "%a" ${FILE})" -ne "644" ]
     then
-        chmod ${FPERM} ${FILE}
+        chmod 644 ${FILE} &>/dev/zero
 
         if [ $? -ne 0 ]
         then
@@ -37,23 +42,18 @@ then
         fi
     fi
 else
-    T_FILE=$(touch ${FILE})
-    P_FILE=$(chmod ${FPERM} ${FILE})
+    umask 022
 
-    if [ ${T_FILE} -ne 0 ] || [ ${P_FILE} -ne 0 ]
+    if [ $? -ne 0 ]
     then
         exit 1
     fi
-
-    unset T_FILE P_FILE
 fi
-
-unset FPERM
 
 # galera’s (3, 4) machine states that result in keepalived
 #   joining the VRRP cluster.
 if [ "${status}" = "Joined" ] || [ "${status}" = "Synced" ] || [ "${status}" = "Donor" ] \
-  [ "${status}" = "joined" ] || [ "${status}" = "synced" ] || [ "${status}" = "donor" ]
+    || [ "${status}" = "joined" ] || [ "${status}" = "synced" ] || [ "${status}" = "donor" ]
 then
     echo 0 >${FILE} # OK
 else

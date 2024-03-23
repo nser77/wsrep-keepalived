@@ -1,0 +1,2 @@
+[galera]
+wsrep_notify_cmd = "/opt/galera/keepalived.sh"

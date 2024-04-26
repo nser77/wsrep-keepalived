@@ -55,9 +55,9 @@ fi
 if [ "${status}" = "Joined" ] || [ "${status}" = "Synced" ] || [ "${status}" = "Donor" ] \
     || [ "${status}" = "joined" ] || [ "${status}" = "synced" ] || [ "${status}" = "donor" ]
 then
-    echo 0 >${FILE} # OK
+    printf 0 >${FILE} # OK
 else
-    echo 1 >${FILE} # KO
+    printf 1 >${FILE} # KO
 fi
 
 exit 0
